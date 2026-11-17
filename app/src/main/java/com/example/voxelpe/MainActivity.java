@@ -3,7 +3,7 @@ package com.example.voxelpe;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.os.Bundle;
-import android.view.MotionEvent;
+import android.view.MotionEvent;\nimport android.opengl.GLSurfaceView;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
