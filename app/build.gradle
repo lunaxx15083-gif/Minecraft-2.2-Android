@@ -1,0 +1,13 @@
+plugins { id 'com.android.application' }
+
+android {
+    namespace 'com.example.voxelpe'
+    compileSdk 34
+    defaultConfig {
+        applicationId 'com.example.voxelpe'
+        minSdk 8
+        targetSdk 8
+        versionCode 1
+        versionName '0.1.0'
+    }
+}
