@@ -7,9 +7,19 @@ import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 import android.opengl.GLSurfaceView;
 import android.opengl.GLU;
+import java.util.Random;
 
 public class WorldRenderer implements GLSurfaceView.Renderer {
     float turn=35, look=0, forward=0, jump=0; int blocksChanged=0;
+    private final int[][] heights = new int[11][11];
+
+    public WorldRenderer(long seed) {
+        Random random = new Random(seed);
+        for (int x=0; x<11; x++) for (int z=0; z<11; z++) {
+            int broad = (int)(2.0 * Math.sin((x + seed % 13) * 0.55) + 2.0 * Math.cos((z - seed % 7) * 0.45));
+            heights[x][z] = Math.max(0, Math.min(4, 1 + broad / 2 + random.nextInt(2)));
+        }
+    }
     private FloatBuffer vertices, colors;
     private final float[] cube = {
       -0.5f,-0.5f,0.5f, 0.5f,-0.5f,0.5f, 0.5f,0.5f,0.5f, -0.5f,0.5f,0.5f,
@@ -29,11 +39,14 @@ public class WorldRenderer implements GLSurfaceView.Renderer {
     public void onDrawFrame(GL10 gl) {
         gl.glClear(GL10.GL_COLOR_BUFFER_BIT|GL10.GL_DEPTH_BUFFER_BIT); gl.glMatrixMode(GL10.GL_MODELVIEW); gl.glLoadIdentity();
         gl.glRotatef(look,1,0,0); gl.glRotatef(turn,0,1,0); gl.glTranslatef(0,-1.3f,-7f+forward);
-        for(int x=-5;x<=5;x++) for(int z=-5;z<=5;z++) {
-            gl.glPushMatrix(); gl.glTranslatef(x,-0.5f,z); drawCube(gl); gl.glPopMatrix();
+        // Deterministic, seed-based starter terrain. Each column is generated
+        // from the saved world seed so the same world looks the same on reload.
+        for(int x=0;x<11;x++) for(int z=0;z<11;z++) {
+            int height = heights[x][z];
+            for(int y=0;y<height;y++) {
+                gl.glPushMatrix(); gl.glTranslatef(x-5, y-0.5f, z-5); drawCube(gl); gl.glPopMatrix();
+            }
         }
-        // Small grass-and-dirt hill to make the generated world visible.
-        for(int i=0;i<3;i++) for(int j=0;j<3-i;j++) { gl.glPushMatrix(); gl.glTranslatef(i-1,0.5f+i,j-1); drawCube(gl); gl.glPopMatrix(); }
     }
     private void drawCube(GL10 gl) {
         gl.glEnableClientState(GL10.GL_VERTEX_ARRAY); gl.glVertexPointer(3,GL10.GL_FLOAT,0,vertices);
